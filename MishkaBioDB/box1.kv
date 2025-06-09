@@ -1,0 +1,380 @@
+#:import FadeTransition kivy.uix.screenmanager.FadeTransition
+
+<Footer@FloatLayout>:
+    Button:
+        background_color: 0, 0, 0, 0
+        size: (120, 50)
+        size_hint: None, None
+        pos_hint: {'center_x': .15, 'center_y': .03}
+        on_release: app.root.current = 'help'
+    Button:
+        background_color: 0, 0, 0, 0
+        size: (120, 50)
+        size_hint: None, None
+        pos_hint: {'center_x': .5, 'center_y': .03}
+        on_release: app.root.current = 'start'
+    Button:
+        background_color: 0, 0, 0, 0
+        size: (120, 50)
+        size_hint: None, None
+        pos_hint: {'center_x': .85, 'center_y': .03}
+        on_release: app.root.current = 'user'
+
+<BigButton@Button>:      #большие зелёные кнопки
+    background_color: 0, 0, 0, 0
+    color: 1, 1, 1, 1
+    font_name: app.Mtext_med
+    font_size: 22
+    height: 80
+    size_hint: None, None
+    canvas.before:
+        Color:
+            rgba: (0.156, 0.227, 0.224, 1)  # #283A39
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [5]
+
+
+<MiddleButton@Button>:      #средние кнопки для "далее"
+    background_color: 0, 0, 0, 0
+    color: 1, 1, 1, 1
+    font_name: app.Mtext_med
+    font_size: 22
+    height: 40
+    width: 200
+    size_hint: None, None
+    canvas.before:
+        Color:
+            rgba: (0.667, 0.667, 0.667, 0.8)  
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [5]
+
+
+<SmallButton@Button>:       #кнопки для сохранения/редактирования/удаления
+    icon_source: ''
+    background_color: 0, 0, 0, 0
+    size_hint: None, None
+    size: 70, 40
+    canvas.before:
+        Color:
+            rgba: 0.156, 0.227, 0.224, 1  # #283A39
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [5]
+    Image:
+        source: root.icon_source
+        size_hint: None, None
+        size: 24, 24
+        center_x: root.center_x
+        center_y: root.center_y
+
+    
+
+
+<Module1>:
+    name: 'module1'
+    title_width: 0
+    FloatLayout:
+        Image:
+            source: '../MTest/ModuleStart.png'
+            allow_stretch: True
+            size_hint: 1, 1
+            keep_ratio: False
+
+    ScreenManager:
+        id: module1_start_manager
+        Screen:
+            name: 'start_module'
+            FloatLayout:
+                Label:
+                    id: title_lbl
+                    text: '«Измерение стрессоустойчивости\nу микрозелени»'
+                    font_name: app.Mtext_semibold
+                    halign: 'center'
+                    valign: 'middle'
+                    font_size: 20
+                    color: '#283A39'
+                    size_hint: None, None
+                    size: self.texture_size
+                    pos_hint: {'center_x': 0.5}
+                    top: root.height - 80
+                    on_size: root.title_width = self.width
+                ButtonBack:
+                    on_release:app.root.current = 'start'
+                BigButton:
+                    text: 'Посмотреть результаты'
+                    width: root.title_width + 5
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.65}
+
+                BigButton:
+                    text: 'Новый замер'
+                    width: root.title_width + 5
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                    on_release: root.redraw_for_new_measurement()
+
+                BigButton:
+                    text: 'Продолжить замер'
+                    width: root.title_width+ 5
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.35}
+
+            Footer
+        Screen:
+            name: 'choice'
+            FloatLayout:
+                JustLabel:
+                    text: 'Выберите\nвид замера'
+                    pos_hint: {'center_x':.5, 'center_y':.8}
+                ButtonBack:
+                    on_release: root.return_to_start()
+
+                #ВОТ ЗДЕСЬ ДОБАВЛЯТЬ МЕТКУ/ФЛАГ ДЛЯ СОХРАНЕНИЯ ДАННЫХ В БД — тест это или обычная выборка
+                BigButton:
+                    text: 'Тест-контроль'
+                    width: root.title_width+ 5
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.55}
+                    on_release: app.root.current = 'selection'
+
+                BigButton:
+                    text: 'Просто выборка'
+                    width: root.title_width + 5
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+                    on_release: app.root.current = 'selection'
+            Footer
+
+
+<Selection>:
+    name: 'selection'
+    title_width: 0
+    FloatLayout:
+        Image:
+            source: '../MTest/ModuleSelection.png'
+            allow_stretch: True
+            size_hint: 1, 1
+            keep_ratio: False
+        ButtonBack:
+            on_release: root.switch_to_module1_choice()
+        MyWidget:
+            id: mywidget_id
+            next_button: next_button
+            size_hint: 1, None
+            keep_ratio: False
+            size: (dp(100), dp(60))
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        JustLabel:
+            text: 'Введите название\nвыборки'
+            pos_hint: {'center_x':.5, 'center_y':.65}
+        MiddleButton:
+            id: next_button
+            text: 'ДАЛЕЕ'
+            pos_hint: {'center_x': 0.5, 'center_y': 0.2}
+            on_release: app.root.current = 'soil'
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 70
+            size_hint: None, None
+            size: self.minimum_size
+            pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+
+            #сохраняем данные, уведомляем, блокируем ввод
+            SmallButton:
+                icon_source: '../MTest/ok.png'
+                on_release:
+                    
+                    root.ids.mywidget_id.on_enter_pressed()
+
+            #говорим, что может редачить, открываем доступ к вводу
+            SmallButton:
+                icon_source: '../MTest/pencil.png'
+                on_release:
+                    app.start_dialog_OK(self, "[color=#ffffff][font=../MTest/Montserrat-Bold.ttf]Можете редактировать\nназвание[/font][/color]")
+                    root.ids.mywidget_id.unlock_textinput()
+
+            SmallButton:
+                icon_source: '../MTest/close.png'
+                on_release:
+                    app.start_dialog_OK(self)
+                    root.switch_to_module1_choice()
+         
+ 
+
+    Footer
+
+<Soil>:
+    name: 'soil'
+    title_width: 0
+    on_enter:
+        mywidget_id.text_input.hint_text = "например, Pb 1 ОДК"
+    FloatLayout:
+        Image:
+            source: '../MTest/ModuleSelection.png'
+            allow_stretch: True
+            size_hint: 1, 1
+            keep_ratio: False
+        ButtonBack:
+            on_release: app.root.current = 'selection'
+        MyWidget:
+            id: mywidget_id
+            next_button: next_button
+            size_hint: 1, None
+            keep_ratio: False
+            size: (dp(100), dp(60))
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        JustLabel:
+            text: 'На какой почве\nпроизрастали стебли?'
+            pos_hint: {'center_x':.5, 'center_y':.65}
+        MiddleButton:
+            id: next_button
+            text: 'ДАЛЕЕ'
+            pos_hint: {'center_x': 0.5, 'center_y': 0.2}
+            on_release: app.root.current = 'square'
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 70
+            size_hint: None, None
+            size: self.minimum_size
+            pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+
+            #сохраняем данные, уведомляем, блокируем ввод
+            SmallButton:
+                icon_source: '../MTest/ok.png'
+                on_release:
+                    
+                    root.ids.mywidget_id.on_enter_pressed()
+
+            #говорим, что может редачить, открываем доступ к вводу
+            SmallButton:
+                icon_source: '../MTest/pencil.png'
+                on_release:
+                    app.start_dialog_OK(self, "[color=#ffffff][font=../MTest/Montserrat-Bold.ttf]Можете редактировать\nназвание[/font][/color]")
+                    root.ids.mywidget_id.unlock_textinput()
+
+            SmallButton:
+                icon_source: '../MTest/close.png'
+                on_release:
+                    app.start_dialog_OK(self)
+                    root.switch_to_module1_choice()
+    Footer
+
+<Square>:
+    name: 'square'
+    title_width: 0
+    on_enter:
+        mywidget_id.text_input.hint_text = "по умолчанию — 0,5 см"
+    FloatLayout:
+        Image:
+            source: '../MTest/ModuleSelection.png'
+            allow_stretch: True
+            size_hint: 1, 1
+            keep_ratio: False
+        ButtonBack:
+            on_release: app.root.current = 'soil'
+        MyWidget:
+            id: mywidget_id
+            next_button: next_button
+            size_hint: 1, None
+            keep_ratio: False
+            size: (dp(100), dp(60))
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        Label:
+            font_size: 29
+            halign: 'center'
+            valign: 'bottom'
+            max_width: 360 * 0.8 + 10
+            max_height: 80
+            color: (0.156, 0.227, 0.224, 1)
+            font_name: app.Mtext_semibold
+            text: 'Введите длину\nстороны клетки (в см)'
+            pos_hint: {'center_x':.5, 'center_y':.65}
+        MiddleButton:
+            id: next_button
+            text: 'ДАЛЕЕ'
+            pos_hint: {'center_x': 0.5, 'center_y': 0.2}
+            on_release: app.root.current = 'photo'
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 70
+            size_hint: None, None
+            size: self.minimum_size
+            pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+
+            #сохраняем данные, уведомляем, блокируем ввод
+            SmallButton:
+                icon_source: '../MTest/ok.png'
+                on_release:
+                    
+                    root.ids.mywidget_id.on_enter_pressed()
+
+            #говорим, что может редачить, открываем доступ к вводу
+            SmallButton:
+                icon_source: '../MTest/pencil.png'
+                on_release:
+                    app.start_dialog_OK(self, "[color=#ffffff][font=../MTest/Montserrat-Bold.ttf]Можете редактировать\nназвание[/font][/color]")
+                    root.ids.mywidget_id.unlock_textinput()
+
+            SmallButton:
+                icon_source: '../MTest/close.png'
+                on_release:
+                    app.start_dialog_OK(self)
+                    root.switch_to_module1_choice()
+    Footer
+
+<Photo>:
+    name: 'photo'
+    title_width: 0
+    selected_image: ''  # путь к выбранному фото 
+    FloatLayout:
+        Image:
+            source: '../MTest/ModuleSelection.png'
+            allow_stretch: True
+            size_hint: 1, 1
+            keep_ratio: False
+        ButtonBack:
+            on_release: app.root.current = 'square'
+        FloatLayout:
+            id: main_buttons
+            BigButton:
+                text: 'Сделать фото'
+                width: root.title_width+370
+                pos_hint: {'center_x': 0.5, 'center_y': 0.55}
+                #on_release: root.start_camera()
+            BigButton:
+                text: 'Загрузить'
+                width: root.title_width + 370
+                pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+                on_release: root.open_file_chooser()
+
+ #       Image:
+ #           id: camera_view
+ #           size_hint: 1, 0.7
+ #           pos_hint: {"top": 1}
+ #       BoxLayout:
+ #           id: camera_controls
+ #           orientation: 'vertical'
+ #           spacing: 10
+ #           size_hint: 1, None
+ #           height: dp(300)
+ #           pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+ #           opacity: 0  # Скрыто по умолчанию
+
+ #           BoxLayout:
+ #               size_hint_y: None
+ #               height: dp(80)
+ #               spacing: 10
+
+#                BigButton:
+#                    text: "Сфотографировать"
+#                    on_release: root.start_camera()
+
+#                BigButton:
+#                    text: "ОК"
+#                    on_release: root.confirm_photo()
+
+#                BigButton:
+#                    text: "Не ОК"
+#                    on_release: root.reject_photo()
+    Footer
+

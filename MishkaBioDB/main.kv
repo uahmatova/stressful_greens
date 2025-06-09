@@ -1,0 +1,233 @@
+#:import FadeTransition kivy.uix.screenmanager.FadeTransition
+
+<ButtonBack@Button>: #кнопка назад — обновила, работает 
+    pos_hint: {'center_x':.12, 'center_y':.96}
+    background_color: 0,0,0,0
+    size_hint_x: None
+    size_hint_y: None
+    width: 60
+    height: 60
+    canvas.before:
+        Color:
+            rgba: (0.156, 0.227, 0.224, 1)  # #283A39
+        Line:
+            points: [self.x + 45, self.center_y, self.x + 10, self.center_y]  # горизонтальная линия
+            width: 1.5
+        Line:
+            points: [self.x + 5, self.center_y, self.x + 15, self.center_y + 10]  # верхняя диагональ
+            width: 1.5
+        Line:
+            points: [self.x + 5, self.center_y, self.x + 15, self.center_y - 10]  # нижняя диагональ
+            width: 1.5
+
+<ButtonHelp@Button>: #кнопка помощи. Старый дизайн, будем менять!
+    pos_hint: {'center_x':.80, 'center_y':.09}
+    background_color: 0, 0, 0, 0
+    size_hint_x: None
+    size_hint_y: None
+    width: 110
+    height: 120
+
+<BottomBtns@FloatLayout>:
+    Button:
+        background_color: 'red'
+        size: (120, 50)
+        size_hint: None, None
+        pos_hint: {'center_x':.15, 'center_y':.03}
+        on_release: self.parent.parent.parent.manager.current = 'help'
+    Button:
+        background_color: 'red'
+        size: (120, 50)
+        size_hint: None, None
+        pos_hint: {'center_x':.5, 'center_y':.03}
+        on_release: self.parent.parent.parent.manager.current = 'start'
+    Button:
+        background_color: 'red'
+        size: (120, 50)
+        size_hint: None, None
+        pos_hint: {'center_x':.85, 'center_y':.03}
+        on_release: self.parent.parent.parent.manager.current  = 'user'
+
+
+
+
+<RootScreen@ScreenManager>:
+    transition: FadeTransition()
+    initial: 'start'
+    Page1:  #стартовая страница
+    EnterReg:  #экран входа
+    UserPage: #экран пользователя
+    Module1: #зеленушка
+    Selection: #для замеров выборки
+    Soil: #внесение почвы
+    Square: #внесение стороны клетки
+    Photo: #выбор откуда фотку брать
+
+<Page1>:
+    name: 'start'
+    FloatLayout:
+        Image: # фон
+            source: '../MTest/Page1.png'
+            allow_stretch: True
+            keep_ratio: False
+            size_hint: 1, 1
+            keep_data: True
+            mipmap: False
+        JustLabel:
+            text: 'ВЫБЕРИТЕ ПОДКЛЮЧЕНИЕ'
+            pos_hint: {'center_x':.5, 'center_y':.65}
+        ButtonLabelMed:
+            id: dialog_here    
+            text: '[font=../MTest/Montserrat-Bold.ttf]С[/font] ИНТЕРНЕТОМ'
+            pos_hint: {'center_x':.5, 'center_y':.50}
+            on_release: app.start_dialog_OK(self)
+        ButtonLabelMed:
+            text: '[font=../MTest/Montserrat-Bold.ttf]БЕЗ[/font] ИНТЕРНЕТА'
+            pos_hint: {'center_x':.5, 'center_y':.36}
+            on_release: root.manager.current = 'enterreg'
+        ButtonHelp:
+            on_release: root.manager.current = 'enterreg'
+         #переход в модуль по имени экрана
+        Button:
+            text: 'Перейти в модуль'
+            size_hint: None, None
+            size: (300, 150)
+            pos_hint: {'center_x': .50, 'center_y': .100}
+            on_release: app.root.current = 'module1'
+
+
+<EnterReg>:
+    name: 'enterreg'
+    FloatLayout:
+        Image: # фон
+            source: '../MTest/Page2.png'
+            allow_stretch: True
+            keep_ratio: False
+            size_hint: 1, 1
+        JustLabel:
+            text: 'ВВЕДИТЕ     ЛОГИН И ПАРОЛЬ'
+            pos_hint: {'center_x':.5, 'center_y':.73}
+        SmallLabel:
+            text: 'логин'
+            pos_hint: {'center_x':.45, 'center_y':.63}
+        MDTextField:
+            id: input_login
+            pos_hint: {'center_x':.5, 'center_y':.60}
+            multiline: False
+            size_hint: None, None
+            size: dp((210 * 160) / app.dpi), dp((80 * 160) / app.dpi)
+            max_text_length: 30
+            theme_line_height: 'Custom'
+            theme_line_width: 'Custom'
+        SmallLabel:
+            text: 'пароль'
+            pos_hint: {'center_x':.45, 'center_y':.53}
+        MDTextField:
+            id: input_passw
+            password: True
+            multiline: False
+            pos_hint: {'center_x':.5, 'center_y':.50}
+            size_hint: None, None
+            size: dp((210 * 160) / app.dpi), dp((80 * 160) / app.dpi)
+            line_width: dp(3)
+            max_text_length: 30
+        ButtonLabel:
+            text: 'ВОЙТИ'
+            pos_hint: {'center_x':.5, 'center_y':.39}
+            on_release: root.manager.current  = 'user'
+        SmallButtonLabel:
+            text: 'регистрация'
+            pos_hint: {'center_x':.5, 'center_y':.28}
+        SmallButtonLabel:
+            text: 'забыли пароль?'
+            pos_hint: {'center_x':.5, 'center_y':.25}
+        ButtonBack: #кнопка назад
+            on_release: root.manager.current  = 'start'
+        ButtonHelp: #кнопка помощи
+            on_release: root.manager.current  = 'start'
+
+
+<UserPage>:
+    name: 'user'
+    FloatLayout:
+        Image: # фон
+            source: '../MTest/UserPage.png'
+            allow_stretch: True
+            keep_ratio: False
+            size_hint: 1, 1
+        Button:
+            size: (97, 97)
+            background_normal:'../MTest/userphoto.png'
+            size_hint: None, None
+            pos_hint: {'center_x':.15, 'center_y':.87}
+        Button:
+            id: btn_exit
+            size: (44, 44)
+            background_normal:'../MTest/exit.png'
+            size_hint: None, None
+            pos_hint: {'center_x':.85, 'center_y':.87}
+        NameInfoLabel:
+            text: 'Имя\nФамилия'
+            pos_hint: {'center_x':.4, 'center_y':.75}
+        InfoLabel:
+            text: 'Данные о пользователе 1'    
+            pos_hint: {'center_x':.4, 'center_y':.64}
+        InfoLabel:
+            text: 'Данные о пользователе 2'    
+            pos_hint: {'center_x':.4, 'center_y':.56}
+        InfoLabel:
+            text: 'Данные о пользователе 3'    
+            pos_hint: {'center_x':.4, 'center_y':.48}
+        ToggleButton:
+            id: btn1
+            size_hint: None, None
+            pos_hint: {'center_x':.31, 'center_y':.30}
+            size: (182, 35)
+            text: 'закрыть'
+            state: 'down'
+            font_size: 19
+            on_release: root.toggle(i = 1)
+            font_name: app.Mtext_med
+            color: app.ghosty_green if self.state == 'normal' else 'white'
+            background_normal: ''
+            background_color: 'white' if self.state == 'normal' else app.dark_green
+            background_down: ''
+            canvas.before:
+                Color:
+                    rgba: app.dark_green
+                Line:
+                    width: dp(2)
+                    rectangle: (self.x, self.y, self.width, self.height)
+        ToggleButton:
+            id: btn2
+            size_hint: None, None
+            pos_hint: {'center_x':.72, 'center_y':.30}
+            size: (181, 35)
+            text: 'открыть'
+            font_size: 19
+            on_release: root.toggle(i = 2)
+            font_name: app.Mtext_med
+            color: app.ghosty_green if self.state == 'normal' else 'white'
+            background_normal: ''
+            background_color: 'white' if self.state == 'normal' else app.dark_green
+            background_down: ''
+            canvas.before:
+                Color:
+                    rgba: app.dark_green
+                Line:
+                    width: dp(2)
+                    rectangle: (self.x, self.y, self.width, self.height)        
+        Button:
+            id: btn_modules
+            size: (300, 30)
+            on_release: root.dropdown_modules_click()
+            background_normal:'../MTest/fullcombobutton.png'
+            size_hint: None, None
+            pos_hint: {'center_x': .5, 'center_y': .20}
+            color: app.dark_green
+        HelpLabel:
+            text: 'Обратиться к администратору'
+            pos_hint: {'center_x':.4, 'center_y':.09}
+            on_release: root.manager.current = 'load'
+        BottomBtns
+
