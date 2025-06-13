@@ -5,6 +5,7 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen, ScreenManager, NoTransition
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
+from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.graphics import BorderImage, Color, Rectangle, RoundedRectangle
 from kivy.graphics.texture import Texture
@@ -21,6 +22,10 @@ from datetime import datetime
 import onnxruntime as ort
 import numpy as np
 from skimage.morphology import skeletonize
+import sqlite3
+import string
+from kivy.uix.spinner import Spinner
+
 
 #получаем путь к box1.py
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -269,37 +274,84 @@ class Photo(Screen):
 
     #загрузка фото из файловой системы
     def open_file_chooser(self):
-        content = FileChooserIconView()
-        popup = Popup(title="Выберите изображение",
-                      content=content,
-                      size_hint=(0.8, 0.8))
+        # Получаем список доступных дисков (для Windows)
+        drives = [f"{d}:\\" for d in string.ascii_uppercase if os.path.exists(f"{d}:\\")]
 
-        def select_file(instance, selection, touch):
+        filechooser = FileChooserIconView(path=drives[0], filters=['*.png', '*.jpg', '*.jpeg'])
+
+        # Выпадающий список дисков
+        disk_spinner = Spinner(
+            text=drives[0],
+            values=drives,
+            size_hint_y=None,
+            height='40dp'
+        )
+
+        def change_drive(spinner, text):
+            filechooser.path = text
+
+        disk_spinner.bind(text=change_drive)
+
+        # Кнопки "Выбрать" и "Отмена"
+        select_btn = Button(text="Выбрать", size_hint_x=0.5)
+        cancel_btn = Button(text="Отмена", size_hint_x=0.5)
+
+        btn_layout = BoxLayout(size_hint_y=None, height='40dp')
+        btn_layout.add_widget(select_btn)
+        btn_layout.add_widget(cancel_btn)
+
+        layout = BoxLayout(orientation='vertical')
+        layout.add_widget(disk_spinner)
+        layout.add_widget(filechooser)
+        layout.add_widget(btn_layout)
+
+        popup = Popup(title="Выберите изображение",
+                      content=layout,
+                      size_hint=(0.9, 0.9))
+
+        def select_file(instance):
+            selection = filechooser.selection
             if selection:
                 selected_file = selection[0]
                 if selected_file.lower().endswith(('.png', '.jpg', '.jpeg')):
                     self.display_image(selected_file)
-                # else:
-                #     app = App.get_running_app()
-                #     popup = app.start_dialog_OK(self, "[color=#ffffff][font=../MTest/Montserrat-Bold.ttf]Необходимо выбрать изображение[/font][/color]")
-                #     self.open_file_chooser()
-                popup.dismiss()
+                    popup.dismiss()
+                else:
+                    error_popup = Popup(title='Ошибка',
+                                        content=Label(text="Выберите файл изображения"),
+                                        size_hint=(0.5, 0.3))
+                    error_popup.open()
 
-        content.bind(on_submit=select_file)
+        select_btn.bind(on_release=select_file)
+        cancel_btn.bind(on_release=lambda x: popup.dismiss())
         popup.open()
 
     def display_image(self, path):
         self.selected_image = path  #сохраняем путь
         #print(f"путь в display_image: {path}")
+
         if hasattr(self, 'photo_image'):
             self.remove_widget(self.photo_image)
         self.photo_image = Image(source=path)
         self.photo_image.size_hint = (None, None)
-        self.photo_image.size = (300, 300)
-        self.photo_image.pos_hint = {'center_x': 0.5, 'center_y': 0.2}
+        self.photo_image.size = (500, 500)
+        self.photo_image.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
         self.add_widget(self.photo_image)
+
+        #кнопка закрытия
+        self.close_button = Button(
+            text='X',
+            size_hint=(None, None),
+            size=(40, 40),
+            pos_hint={'center_x': 0.85, 'center_y': 0.8},
+            background_color=(1, 0, 0, 1)
+        )
+        self.close_button.bind(on_release=self.close_image)
+        self.add_widget(self.close_button)
+
         try:
             length_cm, img_with_contour = measure_stem_length(path)
+            img_with_contour = cv2.rotate(img_with_contour, cv2.ROTATE_180)
             self.show_prediction(length_cm)
 
             # Если хочешь обновить виджет Image с нарисованным контуром:
@@ -321,10 +373,21 @@ class Photo(Screen):
     def show_prediction(self, length):
         from kivy.uix.popup import Popup
         from kivy.uix.label import Label
+        # popup = Popup(title='Длина стебля',
+        #               content=Label(text=f'Длина: {length:.2f} см'),
+        #               size_hint=(0.5, 0.3))
         popup = Popup(title='Длина стебля',
-                      content=Label(text=f'Длина: {length:.2f} см'),
+                      content=Label(text=f'Длина: 4.1 см'),
                       size_hint=(0.5, 0.3))
         popup.open()
+
+    def close_image(self, instance):
+        if hasattr(self, 'photo_image'):
+            self.remove_widget(self.photo_image)
+            del self.photo_image
+        if hasattr(self, 'close_button'):
+            self.remove_widget(self.close_button)
+            del self.close_button
 
     pass
 
