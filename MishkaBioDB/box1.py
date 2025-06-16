@@ -25,14 +25,17 @@ from skimage.morphology import skeletonize
 import sqlite3
 import string
 from kivy.uix.spinner import Spinner
+from db import get_connection
 
+#подключаемся к бд
+get_connection()
 
 #получаем путь к box1.py
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-#формируем п
-model_path = os.path.join(BASE_DIR, '..', 'MTest', 'model.onnx')
-model_path = os.path.normpath(model_path)
+# #формируем п
+# model_path = os.path.join(BASE_DIR, '..', 'MTest', 'model.onnx')
+# model_path = os.path.normpath(model_path)
 
 # print("Загружаю модель из:", model_path)
 # ort_session = ort.InferenceSession(model_path)
